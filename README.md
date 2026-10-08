@@ -1,34 +1,41 @@
 # TaskFlow — Task Management Application
 
-A focused full-stack task management web application built to match the internship brief for Task Management Application.
+**First Release · v1.0.0**
 
-## Requirements covered
+TaskFlow is a simple full-stack task manager built with React, Flask and SQLite.
 
-- **User authentication and authorization** — register, login, logout and protected task APIs.
-- **CRUD operations for tasks** — create, view, update and delete tasks.
-- **Task tracking** — To do, In progress and Completed states.
-- **Responsive design** — desktop and mobile-friendly interface.
-- **Dynamic data handling** — React frontend communicates with a Flask REST API and persistent database.
-- **Real-time updates** — intentionally not included because WebSockets are marked optional in the brief.
+The app covers the main requirements of the Task Management Application task: account creation and login, user-level authorization, task CRUD, status tracking and a responsive interface.
 
-## Stack
+## Features
 
-- **Frontend:** React + Vite + CSS
-- **Backend:** Python + Flask REST API
-- **Database:** SQLite for zero-setup local persistence
+- Register and log in with email and password
+- Passwords stored as hashes
+- JWT-based authenticated sessions
+- Each user sees only their own tasks
+- Create, edit and delete tasks
+- Task status: To do, In progress, Completed
+- Task priority: Low, Medium, High
+- Optional due dates
+- Search and status/priority filters
+- Responsive layout for desktop and mobile
+- Persistent SQLite database
+
+Real-time updates are not included because WebSocket updates are optional in the brief.
+
+## Tech stack
+
+- **Frontend:** React + Vite
+- **Backend:** Python + Flask
+- **Database:** SQLite
 - **Authentication:** JWT
-- **Password security:** Werkzeug password hashing
+- **Password hashing:** Werkzeug
 
-## Why SQLite?
-
-The assignment does not require a specific database or hosting provider. SQLite keeps the project self-contained and easy for a reviewer to run locally without creating an external database account.
-
-The database file (`taskflow.db`) is created automatically the first time the Flask backend starts.
+SQLite is used so the project can be cloned and run without setting up a separate database service.
 
 ## Project structure
 
 ```text
-task-management-app/
+task-management-application/
 ├── backend/
 │   ├── app.py
 │   └── README.md
@@ -43,14 +50,39 @@ task-management-app/
 ├── .gitignore
 ├── README.md
 ├── requirements.txt
+├── setup.bat
+├── run_backend.bat
+├── run_frontend.bat
 └── SUBMISSION_CHECKLIST.md
 ```
 
-## Run locally
+## Running the project
 
-### 1. Backend
+### Windows quick setup
 
-Open a terminal in the project root:
+From the project folder:
+
+```bat
+setup.bat
+```
+
+Then open two terminals:
+
+```bat
+run_backend.bat
+```
+
+and:
+
+```bat
+run_frontend.bat
+```
+
+Open **http://localhost:5173**.
+
+### Manual setup
+
+Backend:
 
 ```powershell
 python -m venv .venv
@@ -59,13 +91,7 @@ pip install -r requirements.txt
 python backend/app.py
 ```
 
-The API runs on:
-
-`http://localhost:5000`
-
-### 2. Frontend
-
-Open a second terminal in the project root:
+Frontend:
 
 ```powershell
 cd frontend
@@ -73,46 +99,72 @@ npm install
 npm run dev
 ```
 
-Open:
+The Flask API runs on **http://localhost:5000** and Vite runs on **http://localhost:5173**.
 
-`http://localhost:5173`
+The Vite dev server forwards `/api` requests to Flask.
 
-The Vite development server proxies `/api` requests to Flask automatically.
+## How to test the application
 
-## How to demonstrate the requirements
+1. Register a first user.
+2. Create a few tasks with different priorities and due dates.
+3. Edit a task and move it to **In progress**.
+4. Mark a task **Completed**.
+5. Try the search and filters.
+6. Log out.
+7. Register a second user.
+8. Verify the second user starts with an empty task list and cannot access the first user's tasks.
+
+## API
 
 ### Authentication
 
-Register an account, log out, then log back in.
-
-### Authorization
-
-Create a task while logged in. A second account cannot read, update or delete the first account's task because every task API is scoped to the authenticated user ID.
-
-### CRUD
-
-Use **New task** to create a task, edit it, change its status or priority, and delete it.
-
-### Task tracking
-
-Use the status tabs to switch between **All**, **To do**, **In progress**, and **Completed**.
-
-### Dynamic data
-
-Refresh the page after creating a task. The task remains because it is stored in `taskflow.db`, not only in browser memory.
-
-## API endpoints
-
-- `GET /api/health`
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET /api/auth/me`
+
+### Tasks
+
 - `GET /api/tasks`
 - `POST /api/tasks`
 - `GET /api/tasks/<id>`
 - `PATCH /api/tasks/<id>`
 - `DELETE /api/tasks/<id>`
 
-## Submission note
+### Health
 
-The Task Management Application brief shown in the internship portal does **not require deployment**, so this version is intentionally optimized as a clean, fully runnable local project rather than adding unnecessary hosting setup.
+- `GET /api/health`
+
+## Data model
+
+### User
+
+```text
+id
+name
+email
+password_hash
+created_at
+```
+
+### Task
+
+```text
+id
+user_id
+title
+description
+status
+priority
+due_date
+created_at
+updated_at
+```
+
+Task queries always include the authenticated user's ID, which is what enforces per-user authorization.
+
+## Notes
+
+- The SQLite database file `taskflow.db` is created automatically on first startup.
+- `.env.example` documents optional local environment settings.
+- The database file and local environment files are excluded from Git.
+- No deployment service is required for this project.
